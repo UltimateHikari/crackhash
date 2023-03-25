@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 public class HashStatus {
+    @NonNull String uuid;
     @NonNull
     private String status;
     @NonNull private List<String> data;

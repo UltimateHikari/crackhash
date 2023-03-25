@@ -8,8 +8,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.hikari.crackhash.messages.*;
+import ru.hikari.crackhash.repository.CustomHashRepository;
 import ru.hikari.crackhash.repository.HashRepository;
 
+import java.util.Collections;
 import java.util.UUID;
 
 @Service
@@ -19,11 +21,14 @@ public class ManagerService {
     private String workersAmount;
 
     @Autowired
+    private CustomHashRepository customHashRepository;
+    @Autowired
     private HashRepository hashRepository;
+    //private HashRepositoryOld hashRepository;
 
     public CrackResponse callCrackService(CrackRequest crackRequest) {
         var uuid = UUID.randomUUID();
-        hashRepository.registerUUID(uuid.toString(), Integer.parseInt(workersAmount));
+        customHashRepository.registerHash(uuid.toString(), Integer.parseInt(workersAmount));
         for(int i = 0; i < Integer.parseInt(workersAmount); i++) {
             RestTemplate restTemplate = new RestTemplate();
 
@@ -42,14 +47,26 @@ public class ManagerService {
     }
 
     public StatusResponse getHashStatus(String hashId) {
-        var res = hashRepository.findStatus(hashId);
+        var res = hashRepository.findStatusByUuid(hashId);
+        if (res == null){
+            return new StatusResponse("NOT_PRESENT", Collections.emptyList());
+        }
         return new StatusResponse(res.getStatus(), res.getData());
     }
 
     public void callLogUpdate(CrackHashWorkerResponse updateRequest) {
-        hashRepository.updateStatus(
-                updateRequest.getRequestId(),
-                updateRequest.getAnswers().getWords()
+        var res = hashRepository.findStatusByUuid(updateRequest.getRequestId());
+        if(res == null){
+            log.error(updateRequest);
+            return;
+        }
+        if(res.getToDo().equals(res.getDone() + 1)){
+            res.setDone(res.getDone() + 1);
+            res.setStatus("DONE");
+        }
+        res.getData().addAll(updateRequest.getAnswers().getWords());
+        customHashRepository.commitHashUpdate(
+                res
         );
     }
 }
