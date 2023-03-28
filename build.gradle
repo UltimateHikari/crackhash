@@ -49,6 +49,8 @@ dependencies {
 	implementation 'commons-codec:commons-codec:1.15'
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb:3.0.5'
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.14.2'
 }
 
 // https://stackoverflow.com/a/73027169

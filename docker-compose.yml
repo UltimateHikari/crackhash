@@ -1,15 +1,17 @@
 version: "3"
 services:
   manager:
-    image: crackhash:0.2
+    image: crackhash:0.3
     restart: always
     environment:
       - HASH_WORKERS=1
     ports: ["8081:8080"]
     depends_on:
+      - "mongodb1"
+      - "rabbitmq"
       - "worker"
   worker:
-    image: crackhash:0.2
+    image: crackhash:0.3
     ports: ["8082:8080"]
 
   mongodb1:
@@ -50,6 +52,21 @@ services:
       - mongodb1
     volumes:
       - mongostatus:/data/
+
+  rabbitmq:
+    container_name: "rabbitmq"
+    image: rabbitmq:3.8-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - ./rabbit-init/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./rabbit-init/definitions.json:/etc/rabbitmq/definitions.json:ro
+    ports:
+      # AMQP protocol port
+      - '5672:5672'
+      # HTTP management UI
+      - '15672:15672'
 
 
 volumes:
