@@ -53,8 +53,8 @@ public class ManagerService {
             HttpEntity<CrackHashManagerRequest> httpEntity =
                     new HttpEntity<>(request);
 
-            var response = restTemplate.postForEntity(resourceUrl, httpEntity, String.class);
-            log.info("manager got response: " + response);
+            //var response = restTemplate.postForEntity(resourceUrl, httpEntity, String.class);
+            //log.info("manager got response: " + response);
 
             rabbitTemplate.convertAndSend(queue.getName(), request);
             log.info("sent message to queue " + queue.getName());

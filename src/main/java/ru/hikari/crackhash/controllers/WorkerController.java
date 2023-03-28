@@ -20,4 +20,5 @@ public class WorkerController {
         log.info("Starting to work on: "+workRequest.getRequestId());
         workerService.callDoWork(workRequest);
     }
+
 }
