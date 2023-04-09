@@ -28,12 +28,4 @@ public class ManagerController {
             @RequestParam(name = "requestId") String hashId) {
         return managerService.getHashStatus(hashId);
     }
-
-    @PatchMapping(value = "/internal/api/manager/hash/crack/request")
-    public void updateHash(
-            @RequestBody CrackHashWorkerResponse updateResponse) {
-        log.info("Received worker update with data: "+updateResponse.getAnswers().getWords().toString());
-        managerService.callLogUpdate(updateResponse);
-    }
-
 }

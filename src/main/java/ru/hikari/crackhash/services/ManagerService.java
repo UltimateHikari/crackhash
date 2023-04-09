@@ -46,18 +46,9 @@ public class ManagerService {
         var uuid = UUID.randomUUID();
         customHashRepository.registerHash(uuid.toString(), Integer.parseInt(workersAmount));
         for(int i = 0; i < Integer.parseInt(workersAmount); i++) {
-            RestTemplate restTemplate = new RestTemplate();
-
-            String resourceUrl
-                    = "http://worker:8080/internal/api/worker/hash/crack/task";
 
             CrackHashManagerRequest request =
                     InternalRequestFactory.forgeRequest(crackRequest, i, Integer.parseInt(workersAmount), uuid);
-            HttpEntity<CrackHashManagerRequest> httpEntity =
-                    new HttpEntity<>(request);
-
-            //var response = restTemplate.postForEntity(resourceUrl, httpEntity, String.class);
-            //log.info("manager got response: " + response);
 
             rabbitTemplate.convertAndSend(requestQueue.getName(), request);
             log.info("sent message to queue " + requestQueue.getName());
@@ -79,8 +70,8 @@ public class ManagerService {
             log.error(updateRequest);
             return;
         }
-        if(res.getToDo().equals(res.getDone() + 1)){
-            res.setDone(res.getDone() + 1);
+        res.setDone(res.getDone() + 1);
+        if(res.getToDo().equals(res.getDone())){
             res.setStatus("DONE");
         }
         res.getData().addAll(updateRequest.getAnswers().getWords());

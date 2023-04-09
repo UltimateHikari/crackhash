@@ -39,16 +39,9 @@ public class WorkerService {
     @Async
     public void callDoWork(CrackHashManagerRequest workRequest) {
         List<String> results = searchForResults(workRequest);
-        RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
-
-        String resourceUrl
-                = "http://manager:8080/internal/api/manager/hash/crack/request";
 
         CrackHashWorkerResponse response = InternalRequestFactory.forgeResponse(workRequest, results);
-        HttpEntity<CrackHashWorkerResponse> httpEntity =
-                new HttpEntity<>(response);
-//        var httpResponse = restTemplate.patchForObject(resourceUrl, httpEntity, String.class);
-//        log.info("worker got response: " + httpResponse);
+
         rabbitTemplate.convertAndSend(responseQueue.getName(), response);
         log.info("sent message to queue " + responseQueue.getName());
     }

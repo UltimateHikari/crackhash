@@ -5,19 +5,39 @@ services:
     restart: always
     container_name: manager
     environment:
-      - HASH_WORKERS=1
+      - HASH_WORKERS=3
       - SPRING_PROFILES_ACTIVE=manager
     ports: ["8081:8080"]
     depends_on:
       - "mongodb1"
       - "rabbitmq"
-      - "worker"
-  worker:
+
+  worker1:
     image: crackhash:0.3
     container_name: worker1
     environment:
       - SPRING_PROFILES_ACTIVE=worker
     ports: ["8082:8080"]
+    depends_on:
+      - "rabbitmq"
+
+  worker2:
+    image: crackhash:0.3
+    container_name: worker2
+    environment:
+      - SPRING_PROFILES_ACTIVE=worker
+    ports: [ "8083:8080" ]
+    depends_on:
+      - "rabbitmq"
+
+  worker3:
+    image: crackhash:0.3
+    container_name: worker3
+    environment:
+      - SPRING_PROFILES_ACTIVE=worker
+    ports: [ "8084:8080" ]
+    depends_on:
+      - "rabbitmq"
 
   mongodb1:
     image: mongo:4
