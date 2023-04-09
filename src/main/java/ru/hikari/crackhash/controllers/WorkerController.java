@@ -1,5 +1,6 @@
 package ru.hikari.crackhash.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import ru.hikari.crackhash.messages.CrackHashManagerRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,6 +9,7 @@ import ru.hikari.crackhash.services.WorkerService;
 
 
 @RestController
+@Profile("worker")
 public class WorkerController {
     private static final Logger log = LogManager.getLogger(WorkerController.class);
 

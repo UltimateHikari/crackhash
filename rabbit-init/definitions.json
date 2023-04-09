@@ -51,7 +51,16 @@
   "policies": [],
   "queues": [
     {
-      "name": "crackhash_queue",
+      "name": "request_queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "classic"
+      }
+    },
+    {
+      "name": "response_queue",
       "vhost": "/",
       "durable": true,
       "auto_delete": false,
@@ -62,7 +71,16 @@
   ],
   "exchanges": [
     {
-      "name": "crackhash_exchange",
+      "name": "request_exchange",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "response_exchange",
       "vhost": "/",
       "type": "direct",
       "durable": true,
@@ -73,11 +91,19 @@
   ],
   "bindings": [
     {
-      "source": "crackhash_exchange",
+      "source": "request_exchange",
       "vhost": "/",
-      "destination": "crackhash_queue",
+      "destination": "request_queue",
       "destination_type": "queue",
-      "routing_key": "crackhash_queue",
+      "routing_key": "request_queue",
+      "arguments": {}
+    },
+    {
+      "source": "response_exchange",
+      "vhost": "/",
+      "destination": "response_queue",
+      "destination_type": "queue",
+      "routing_key": "response_queue",
       "arguments": {}
     }
   ]

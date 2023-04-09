@@ -15,6 +15,7 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import ru.hikari.crackhash.messages.CrackHashManagerRequest;
 import ru.hikari.crackhash.messages.CrackHashWorkerResponse;
@@ -22,14 +23,23 @@ import ru.hikari.crackhash.messages.CrackHashWorkerResponse;
 @Configuration
 @EnableRabbit
 public class RabbitConfiguration {
-    @Value("${rabbitmq.queue}")
-    String queueName;
+    @Value("${rabbitmq.request.queue}")
+    String requestQueueName;
 
-    @Value("${rabbitmq.exchange}")
-    String exchange;
+    @Value("${rabbitmq.request.exchange}")
+    String requestExchange;
 
-    @Value("${rabbitmq.routingkey}")
-    private String routingKey;
+    @Value("${rabbitmq.request.routingkey}")
+    private String requestRoutingKey;
+
+    @Value("${rabbitmq.response.queue}")
+    String responseQueueName;
+
+    @Value("${rabbitmq.response.exchange}")
+    String responseExchange;
+
+    @Value("${rabbitmq.response.routingkey}")
+    private String responseRoutingKey;
 
     @Value("${rabbitmq.username}")
     private String username;
@@ -44,18 +54,33 @@ public class RabbitConfiguration {
     private String virtualHost;
 
     @Bean
-    Queue queue() {
-        return new Queue(queueName, true);
+    Queue requestQueue() {
+        return new Queue(requestQueueName, true);
     }
 
     @Bean
-    DirectExchange exchange() {
-        return new DirectExchange(exchange);
+    DirectExchange requestExchange() {
+        return new DirectExchange(requestExchange);
     }
 
     @Bean
-    Binding binding(Queue queue, DirectExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
+    Binding requestBinding(Queue requestQueue, DirectExchange requestExchange) {
+        return BindingBuilder.bind(requestQueue).to(requestExchange).with(requestRoutingKey);
+    }
+
+    @Bean
+    Queue responseQueue() {
+        return new Queue(responseQueueName, true);
+    }
+
+    @Bean
+    DirectExchange responseExchange() {
+        return new DirectExchange(responseExchange);
+    }
+
+    @Bean
+    Binding responseBinding(Queue responseQueue, DirectExchange responseExchange) {
+        return BindingBuilder.bind(responseQueue).to(responseExchange).with(responseRoutingKey);
     }
 
     @Bean

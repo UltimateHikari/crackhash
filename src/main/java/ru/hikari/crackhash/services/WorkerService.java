@@ -4,6 +4,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.paukov.combinatorics3.Generator;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.Queue;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -18,9 +22,19 @@ import java.util.List;
 
 
 @Service
+@Profile("worker")
 public class WorkerService {
     private static final Logger log = LogManager.getLogger(WorkerService.class);
 
+    /*
+     * TODO:
+     *  3. double-check that messages are persistent https://www.rabbitmq.com/confirms.html
+     */
+
+    @Autowired
+    AmqpTemplate rabbitTemplate;
+    @Autowired
+    private Queue responseQueue;
 
     @Async
     public void callDoWork(CrackHashManagerRequest workRequest) {
@@ -33,8 +47,10 @@ public class WorkerService {
         CrackHashWorkerResponse response = InternalRequestFactory.forgeResponse(workRequest, results);
         HttpEntity<CrackHashWorkerResponse> httpEntity =
                 new HttpEntity<>(response);
-        var httpResponse = restTemplate.patchForObject(resourceUrl, httpEntity, String.class);
-        log.info("worker got response: " + httpResponse);
+//        var httpResponse = restTemplate.patchForObject(resourceUrl, httpEntity, String.class);
+//        log.info("worker got response: " + httpResponse);
+        rabbitTemplate.convertAndSend(responseQueue.getName(), response);
+        log.info("sent message to queue " + responseQueue.getName());
     }
 
     /*

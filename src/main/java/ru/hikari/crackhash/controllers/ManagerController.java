@@ -1,4 +1,5 @@
 package ru.hikari.crackhash.controllers;
+import org.springframework.context.annotation.Profile;
 import ru.hikari.crackhash.messages.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,6 +9,7 @@ import ru.hikari.crackhash.services.ManagerService;
 
 
 @RestController
+@Profile("manager")
 public class ManagerController {
     private static final Logger log = LogManager.getLogger(ManagerController.class);
 
